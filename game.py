@@ -66,7 +66,6 @@ def make_move(board, tile, x_start, y_start):
             board.board_cells.remove(cell)
             board.board_cells.append(board.fill_cell(x_start, y_start, image=tile_image(board, tile),
                                                      tile=tile))
-            # boardCellsCopy.append(new_cell)
             break
 
     for x, y in tiles_to_flip:
@@ -84,8 +83,7 @@ def is_on_corner(x, y):
 
 
 def get_player_move(board, player_tile):
-    k = 0
-    x = y = 0
+    k = x = y = 0
     while k == 0:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -96,7 +94,6 @@ def get_player_move(board, player_tile):
             if event.type == pg.MOUSEBUTTONUP:
                 x = int((-25 + event.pos[1]) / 50)
                 y = int((-25 + event.pos[0]) / 50)
-                print(x, y)
                 if not board.is_valid_move(player_tile, x, y):
                     continue
                 else:
@@ -107,7 +104,7 @@ def get_player_move(board, player_tile):
 def get_computer_move(board, computer_tile):
     possible_moves = board.get_valid_moves(computer_tile)
     r.shuffle(possible_moves)
-    best_move = [0, 0]
+    best_move = [-1, -1]
     for x, y in possible_moves:
         if is_on_corner(x, y):
             return [x, y]
@@ -140,7 +137,6 @@ def play_game(board, player_tile, computer_tile, turn, window_surface, font, mai
     show_hints = False
     board.get_new_board()
     while True:
-        print('....')
         player_valid_moves = board.get_valid_moves(player_tile)
         computer_valid_moves = board.get_valid_moves(computer_tile)
         print_score(board, player_tile, computer_tile, window_surface, font)
@@ -153,9 +149,6 @@ def play_game(board, player_tile, computer_tile, turn, window_surface, font, mai
                 if show_hints:
                     board.get_board_with_valid_moves(player_tile)
                 draw_board(board, window_surface)
-                for cell in board.board_cells:
-                    if cell['tile'] in ['X', 'O']:
-                        print(cell['cX'], cell['cY'], cell['tile'])
                 move = get_player_move(board, player_tile)
                 make_move(board, player_tile, move[0], move[1])
             turn = 'Компьютер'
@@ -163,10 +156,6 @@ def play_game(board, player_tile, computer_tile, turn, window_surface, font, mai
         elif turn == 'Компьютер':
             if computer_valid_moves:
                 draw_board(board, window_surface)
-                for cell in board.board_cells:
-                    if cell['tile'] in ['X', 'O']:
-                        print(cell['cX'], cell['cY'], cell['tile'])
-                print('move')
                 move = get_computer_move(board, computer_tile)
                 make_move(board, computer_tile, move[0], move[1])
             turn = 'Человек'
@@ -223,4 +212,5 @@ def main():
         final_scores(final_board, player_tile, computer_tile, window_surface, font)
 
 
-main()
+if __name__ == '__main__':
+    main()

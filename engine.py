@@ -47,23 +47,14 @@ class Board:
     def get_new_board(self):
         for y in range(WIDTH):
             for x in range(HEIGHT):
-                if y == 3:
-                    if x == 3:
-                        self.board_cells.append(self.fill_cell(x, y, self.cell_X_image, 'X'))
-                        continue
-                    elif x == 4:
-                        self.board_cells.append(self.fill_cell(x, y, self.cell_O_image, 'O'))
-                        continue
-                if y == 4:
-                    if x == 3:
-                        self.board_cells.append(self.fill_cell(x, y, self.cell_O_image, 'O'))
-                        continue
-                    elif x == 4:
-                        self.board_cells.append(self.fill_cell(x, y, self.cell_X_image, 'X'))
-                        continue
-                self.board_cells.append(self.fill_cell(x, y, self.cell_image, ' '))
+                if y in [3, 4] and x == y:
+                    self.board_cells.append(self.fill_cell(x, y, self.cell_X_image, 'X'))
+                elif y in [3, 4] and x in [3, 4]:
+                    self.board_cells.append(self.fill_cell(x, y, self.cell_O_image, 'O'))
+                else:
+                    self.board_cells.append(self.fill_cell(x, y, self.cell_image, ' '))
 
-    def get_board_copy(self):
+    def get_board_cells_copy(self):
         self.board_cells_copy = self.board_cells.copy()
 
     def is_on_board(self, x, y):
@@ -115,7 +106,7 @@ class Board:
                 return tiles_to_flip
 
     def get_board_with_valid_moves(self, tile):
-        self.get_board_copy()
+        self.get_board_cells_copy()
         for x, y in self.get_valid_moves(tile):
             for cell in self.board_cells_copy[:]:
                 if cell['cX'] == x and cell['cY'] == y:
