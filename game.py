@@ -107,6 +107,7 @@ def get_player_move(board, player_tile):
 def get_computer_move(board, computer_tile):
     possible_moves = board.get_valid_moves(computer_tile)
     r.shuffle(possible_moves)
+    best_move = [0, 0]
     for x, y in possible_moves:
         if is_on_corner(x, y):
             return [x, y]
@@ -121,29 +122,29 @@ def get_computer_move(board, computer_tile):
     return best_move
 
 
-def draw_board(board):
+def draw_board(board, window_surface):
 
     for cell in board.board_cells:
         window_surface.blit(cell['surface'], cell['rect'])
     pg.display.update()
 
 
-def print_score(board, player_tile, computer_tile):
+def print_score(board, player_tile, computer_tile, window_surface, font):
     window_surface.fill(BACKGROUND_COLOR)
     scores = get_score_of_board(board)
     draw_text('Ваш счет: %s. Счет компьютера: %s.' % (scores[player_tile], scores[computer_tile]), font,
               window_surface, 0, int(WINDOW_HEIGHT - 15))
 
 
-def play_game(board, player_tile, computer_tile, turn):
+def play_game(board, player_tile, computer_tile, turn, window_surface, font, main_clock):
     show_hints = False
     board.get_new_board()
     while True:
         print('....')
         player_valid_moves = board.get_valid_moves(player_tile)
         computer_valid_moves = board.get_valid_moves(computer_tile)
-        print_score(board, player_tile, computer_tile)
-        pg.time.wait(100)
+        print_score(board, player_tile, computer_tile, window_surface, font)
+        main_clock.tick(FPS)
         if player_valid_moves == [] and computer_valid_moves == []:
             return board
 
@@ -151,7 +152,7 @@ def play_game(board, player_tile, computer_tile, turn):
             if player_valid_moves:
                 if show_hints:
                     board.get_board_with_valid_moves(player_tile)
-                draw_board(board)
+                draw_board(board, window_surface)
                 for cell in board.board_cells:
                     if cell['tile'] in ['X', 'O']:
                         print(cell['cX'], cell['cY'], cell['tile'])
@@ -161,7 +162,7 @@ def play_game(board, player_tile, computer_tile, turn):
 
         elif turn == 'Компьютер':
             if computer_valid_moves:
-                draw_board(board)
+                draw_board(board, window_surface)
                 for cell in board.board_cells:
                     if cell['tile'] in ['X', 'O']:
                         print(cell['cX'], cell['cY'], cell['tile'])
@@ -171,7 +172,7 @@ def play_game(board, player_tile, computer_tile, turn):
             turn = 'Человек'
 
 
-def final_scores(board, player_tile, computer_tile):
+def final_scores(board, player_tile, computer_tile, window_surface, font):
     window_surface.fill(BACKGROUND_COLOR)
     scores = get_score_of_board(board)
 
@@ -190,34 +191,36 @@ def final_scores(board, player_tile, computer_tile):
     engine.wait_for_player_to_press_key()
 
 
-pg.init()
-mainClock = pg.time.Clock()
-window_surface = pg.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pg.display.set_caption('Реверси')
-pg.mouse.set_visible(True)
+def main():
+    pg.init()
+    main_clock = pg.time.Clock()
+    window_surface = pg.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    pg.display.set_caption('Реверси')
+    pg.mouse.set_visible(True)
 
-font = pg.font.SysFont(None, 20)
-tile = ''
-window_surface.fill(BACKGROUND_COLOR)
-
-draw_text('Выберите цвет фишек, b - черные, w - белые', font, window_surface, 0, 0)
-pg.display.update()
-
-player_tile, computer_tile = enter_player_tile()
-
-while True:
-    turn = who_goes_first()
+    font = pg.font.SysFont(None, 20)
     window_surface.fill(BACKGROUND_COLOR)
-    board = engine.Board()
-    draw_text(f'{turn} ходит первым.', font, window_surface, 0, 0)
 
+    draw_text('Выберите цвет фишек, b - черные, w - белые', font, window_surface, 0, 0)
     pg.display.update()
-    engine.wait_for_player_to_press_key()
-    window_surface.fill(BACKGROUND_COLOR)
-    final_board = play_game(board, player_tile, computer_tile, turn)
 
-    draw_board(final_board)
-    mainClock.tick(FPS)
-    engine.wait_for_player_to_press_key()
-    final_scores(final_board, player_tile, computer_tile)
+    player_tile, computer_tile = enter_player_tile()
 
+    while True:
+        turn = who_goes_first()
+        window_surface.fill(BACKGROUND_COLOR)
+        board = engine.Board()
+        draw_text(f'{turn} ходит первым.', font, window_surface, 0, 0)
+
+        pg.display.update()
+        engine.wait_for_player_to_press_key()
+        window_surface.fill(BACKGROUND_COLOR)
+        final_board = play_game(board, player_tile, computer_tile, turn, window_surface, font, main_clock)
+
+        draw_board(final_board, window_surface)
+        main_clock.tick(FPS)
+        engine.wait_for_player_to_press_key()
+        final_scores(final_board, player_tile, computer_tile, window_surface, font)
+
+
+main()
