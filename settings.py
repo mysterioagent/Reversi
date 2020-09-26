@@ -6,6 +6,6 @@ WINDOW_HEIGHT = 450
 DIRECTIONS = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
 FPS = 60
 TEXT_COLOR = (255, 255, 255)
-BACKGROUND_COLOR = (30, 30, 30)
+BACKGROUND_COLOR = (60, 60, 60)
 
 

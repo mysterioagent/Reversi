@@ -13,8 +13,15 @@ def draw_text(text, text_font, surface, x, y):
     surface.blit(text_obj, text_rect)
 
 
-def enter_player_tile():
+def new_game(window_surface):
     # O - black, X - white
+    black_image = pg.image.load('images/black.png')
+    white_image = pg.image.load('images/white.png')
+    black_rect = pg.Rect(WINDOW_WIDTH // 4 - 75, 125, 150, 50)
+    white_rect = pg.Rect(3 * WINDOW_WIDTH // 4 - 75, 125, 150, 50)
+    window_surface.blit(black_image, black_rect)
+    window_surface.blit(white_image, white_rect)
+    pg.display.update()
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -24,6 +31,13 @@ def enter_player_tile():
                     return 'O', 'X'
                 if event.key == pg.K_w:
                     return 'X', 'O'
+            if event.type == pg.MOUSEBUTTONUP:
+                print(event.pos)
+                if 125 <= event.pos[1] <= 175:
+                    if WINDOW_WIDTH // 4 - 75 <= event.pos[0] <= WINDOW_WIDTH // 4 + 75:
+                        return 'O', 'X'
+                    if 3 * WINDOW_WIDTH // 4 - 75 <= event.pos[0] <= 3 * WINDOW_WIDTH // 4 + 75:
+                        return 'X', 'O'
 
 
 def get_score_of_board(board):
@@ -140,11 +154,12 @@ def play_game(board, player_tile, computer_tile, turn, window_surface, font, mai
         player_valid_moves = board.get_valid_moves(player_tile)
         computer_valid_moves = board.get_valid_moves(computer_tile)
         print_score(board, player_tile, computer_tile, window_surface, font)
-        main_clock.tick(FPS)
+        pg.time.wait(300)
         if player_valid_moves == [] and computer_valid_moves == []:
             return board
 
         elif turn == 'Человек':
+            pg.time.wait(300)
             if player_valid_moves:
                 if show_hints:
                     board.get_board_with_valid_moves(player_tile)
@@ -154,6 +169,7 @@ def play_game(board, player_tile, computer_tile, turn, window_surface, font, mai
             turn = 'Компьютер'
 
         elif turn == 'Компьютер':
+
             if computer_valid_moves:
                 draw_board(board, window_surface)
                 move = get_computer_move(board, computer_tile)
@@ -189,12 +205,10 @@ def main():
 
     font = pg.font.SysFont(None, 20)
     window_surface.fill(BACKGROUND_COLOR)
+    draw_text('Выберите цвет фишек, b - черные, w - белые', font, window_surface, 100, 0)
+    player_tile, computer_tile = new_game(window_surface)
 
-    draw_text('Выберите цвет фишек, b - черные, w - белые', font, window_surface, 0, 0)
     pg.display.update()
-
-    player_tile, computer_tile = enter_player_tile()
-
     while True:
         turn = who_goes_first()
         window_surface.fill(BACKGROUND_COLOR)
